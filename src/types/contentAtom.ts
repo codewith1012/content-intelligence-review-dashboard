@@ -53,8 +53,8 @@ export type SortOrder = "newest" | "oldest";
 
 export interface ListContentAtomsParams {
   status: ContentAtomStatus;
-  angle?: ContentAngle;
-  sort?: SortOrder;
+  angle?: ContentAngle | undefined;
+  sort?: SortOrder | undefined;
 }
 
 export const angleLabel = (a: string) =>
