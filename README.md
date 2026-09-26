@@ -23,7 +23,7 @@ Core Features
     Track generated, edited, approved, and rejected states
     Responsive internal operations dashboard
 
-Content Lifecycle
+# Content Lifecycle
 
 Each generated content atom begins with:
 
