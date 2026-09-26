@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Check, ChevronDown, Loader2, Pencil, X } from "lucide-react";
+import { Check, ChevronDown, History, Loader2, Mail, Pencil, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -11,12 +11,12 @@ import { EditAtomDialog } from "./EditAtomDialog";
 import { SourcePanel, VersionPanel } from "./AtomPanels";
 import { cn } from "@/lib/utils";
 
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
+function Section({ label, icon, children }: { label: string; icon: React.ReactNode; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="border-t border-border">
-      <CollapsibleTrigger className="flex w-full items-center justify-between py-3 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground">
-        {label}
+      <CollapsibleTrigger className="flex w-full items-center justify-between py-3 text-xs font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground">
+        <span className="flex items-center gap-2">{icon}{label}</span>
         <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
       </CollapsibleTrigger>
       <CollapsibleContent className="pb-4">{open && children}</CollapsibleContent>
@@ -34,36 +34,26 @@ export function AtomCard({ atom }: { atom: ContentAtom }) {
   const onErr = (e: Error) => toast.error(e.message || "Something went wrong");
 
   return (
-    <article className={cn("rounded-lg border border-border bg-card px-7 pt-6 transition-opacity", localStatus !== atom.status && "opacity-60")}>
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-muted-foreground">
+    <article className={cn("rounded-xl border border-border bg-card px-5 pt-5 shadow-card transition-[opacity,box-shadow] duration-200 ease-out hover:shadow-card-hover sm:px-7 sm:pt-6", localStatus !== atom.status && "opacity-60")}>
+      <header className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <span className="rounded-md border border-steel/20 bg-steel/5 px-2 py-0.5 text-[11px] font-medium text-steel">{angleLabel(atom.angle)}</span>
+        <span className="inline-flex items-center gap-1 rounded-md border border-violet/20 bg-violet/5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-violet">
+          <Sparkles className="size-3" /> AI Generated
+        </span>
+        <span className="rounded-md border border-border px-2 py-0.5 font-mono text-[11px]">v{atom.current_version}</span>
         <StatusBadge status={localStatus} />
-        <span className="font-medium uppercase tracking-[0.12em] text-foreground/70">{angleLabel(atom.angle)}</span>
         <span className="ml-auto flex items-center gap-3 tabular-nums">
-          {atom.generated_by_model && <span className="font-mono">{atom.generated_by_model}</span>}
-          <span>v{atom.current_version}</span>
+          {atom.generated_by_model && <span className="hidden font-mono text-[11px] sm:inline">{atom.generated_by_model}</span>}
           <span>{format(new Date(atom.created_at), "MMM d, yyyy")}</span>
         </span>
       </header>
 
-      <h2 className="mt-4 font-display text-[1.65rem] leading-tight tracking-tight">{atom.title}</h2>
-      <p className="mt-3 border-l-2 border-primary pl-4 text-base italic text-foreground/85">{atom.hook}</p>
-      <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted-foreground">{atom.brief}</p>
+      <h2 className="mt-4 font-display text-xl font-semibold leading-snug tracking-tight sm:text-[22px]">{atom.title}</h2>
+      <p className="mt-3 border-l-2 border-violet/60 pl-4 text-[17px] leading-relaxed text-foreground/85">{atom.hook}</p>
+      <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-muted-foreground">{atom.brief}</p>
 
       {pending && (
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            disabled={busy}
-            onClick={() =>
-              approve.mutate(atom.id, {
-                onSuccess: () => { setLocalStatus("approved"); toast.success("Approved — queued for publishing"); },
-                onError: onErr,
-              })
-            }
-          >
-            {approve.isPending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
-            {approve.isPending ? "Approving…" : "Approve"}
-          </Button>
+        <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
           <Button size="sm" variant="outline" disabled={busy} onClick={() => setEditing(true)}>
             <Pencil className="size-4" /> Edit
           </Button>
@@ -82,6 +72,19 @@ export function AtomCard({ atom }: { atom: ContentAtom }) {
             {reject.isPending ? <Loader2 className="size-4 animate-spin" /> : <X className="size-4" />}
             {reject.isPending ? "Rejecting…" : "Reject"}
           </Button>
+          <Button
+            size="sm"
+            disabled={busy}
+            onClick={() =>
+              approve.mutate(atom.id, {
+                onSuccess: () => { setLocalStatus("approved"); toast.success("Approved — queued for publishing"); },
+                onError: onErr,
+              })
+            }
+          >
+            {approve.isPending ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+            {approve.isPending ? "Approving…" : "Approve"}
+          </Button>
         </div>
       )}
       {atom.status === "approved" && atom.approved_by && (
@@ -91,8 +94,8 @@ export function AtomCard({ atom }: { atom: ContentAtom }) {
       )}
 
       <div className="mt-6">
-        <Section label="View Source Newsletter"><SourcePanel atomId={atom.id} /></Section>
-        <Section label="Version History"><VersionPanel atomId={atom.id} /></Section>
+        <Section label="View Source Newsletter" icon={<Mail className="size-3.5" />}><SourcePanel atomId={atom.id} /></Section>
+        <Section label="Version History" icon={<History className="size-3.5" />}><VersionPanel atomId={atom.id} /></Section>
       </div>
 
       <EditAtomDialog

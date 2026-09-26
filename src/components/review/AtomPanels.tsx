@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { useAtomSource, useAtomVersions } from "@/hooks/useContentAtoms";
 import { cn } from "@/lib/utils";
 
@@ -15,13 +15,14 @@ export function SourcePanel({ atomId }: { atomId: string }) {
   if (error) return <Inline>Couldn't load source. <button className="underline" onClick={() => refetch()}>Retry</button></Inline>;
   if (!data) return null;
   return (
-    <div className="rounded-md border border-border bg-muted/40 p-5">
-      <p className="font-display text-lg leading-snug">{data.subject}</p>
+    <div className="rounded-lg border border-border bg-surface-evidence p-5">
+      <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"><Mail className="size-3" /> Source newsletter</p>
+      <p className="mt-2 text-base font-semibold leading-snug">{data.subject}</p>
       <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <dt>From</dt><dd className="text-foreground/80">{data.sender_name} &lt;{data.sender_email}&gt;</dd>
         <dt>Received</dt><dd className="text-foreground/80">{fmt(data.received_at)}</dd>
       </dl>
-      <div className="mt-4 max-h-80 overflow-y-auto whitespace-pre-line border-t border-border pt-4 text-sm leading-relaxed text-muted-foreground">
+      <div className="mt-4 max-h-80 max-w-prose overflow-y-auto whitespace-pre-line border-t border-border pt-4 text-sm leading-relaxed text-muted-foreground">
         {data.body}
       </div>
     </div>
@@ -37,13 +38,13 @@ export function VersionPanel({ atomId }: { atomId: string }) {
     <ol className="relative ml-1.5 border-l border-border">
       {versions.map((v, i) => (
         <li key={v.id} className="relative pb-4 pl-5 last:pb-0">
-          <span className={cn("absolute -left-[5px] top-1.5 size-2.5 rounded-full border-2 border-background", i === 0 ? "bg-primary" : "bg-border")} />
+          <span className={cn("absolute -left-[5px] top-1.5 size-2.5 rounded-full border-2 border-background", i === 0 ? "bg-cyan" : "bg-border")} />
           <div className="flex items-baseline gap-2">
-            <span className={cn("text-sm", i === 0 ? "font-semibold" : "font-medium text-foreground/80")}>Version {v.version_number}</span>
-            {i === 0 && <span className="rounded bg-primary px-1.5 py-px text-[10px] font-medium uppercase tracking-wider text-primary-foreground">Current</span>}
+            <span className={cn("text-sm", i === 0 ? "font-semibold" : "font-medium text-foreground/80")}>V{v.version_number} · {v.edit_type === "ai_generated" ? "AI Generated" : "Human Edit"}</span>
+            {i === 0 && <span className="rounded border border-cyan/30 bg-cyan/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-steel">Latest</span>}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {v.edit_type === "ai_generated" ? "AI Generated" : "Human Edit"} · {fmt(v.created_at)}
+          <p className="mt-0.5 text-xs tabular-nums text-muted-foreground">
+            {fmt(v.created_at)}
             {v.edited_by && ` · ${v.edited_by}`}
           </p>
         </li>

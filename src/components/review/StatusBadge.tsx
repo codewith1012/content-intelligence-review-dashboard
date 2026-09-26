@@ -14,7 +14,7 @@ const labels: Record<ContentAtomStatus, string> = {
 
 export function StatusBadge({ status }: { status: ContentAtomStatus }) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium", styles[status])}>
+    <span className={cn("inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-medium", styles[status])}>
       <span className="size-1.5 rounded-full bg-current" />
       {labels[status]}
     </span>
