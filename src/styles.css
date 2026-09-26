@@ -20,7 +20,8 @@
 
 @theme inline {
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Urbanist", ui-sans-serif, sans-serif;
+  --font-display: "Archivo", "Urbanist", ui-sans-serif, sans-serif;
+  --font-editorial: "Instrument Serif", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --color-steel: var(--steel);
   --color-cyan: var(--cyan);
