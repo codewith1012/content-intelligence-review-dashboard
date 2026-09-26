@@ -1,24 +1,125 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { AlertCircle, Inbox } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { AuthGate, useCurrentUser } from "@/components/auth/AuthGate";
+import { AtomCard } from "@/components/review/AtomCard";
+import { useContentAtoms } from "@/hooks/useContentAtoms";
+import { USE_MOCKS } from "@/services/api";
+import { CONTENT_ANGLES, angleLabel, type ContentAngle, type ContentAtomStatus, type SortOrder } from "@/types/contentAtom";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Content Review — Editorial Desk" },
+      { name: "description", content: "Review, edit, approve or reject AI-generated content atoms before publishing." },
+      { property: "og:title", content: "Content Review — Editorial Desk" },
+      { property: "og:description", content: "Human review workspace for AI-generated content atoms." },
+    ],
+  }),
+  component: () => (
+    <AuthGate>
+      <ContentReview />
+    </AuthGate>
+  ),
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const EMPTY: Record<ContentAtomStatus, string> = {
+  pending_review: "No content atoms are waiting for review.",
+  approved: "Nothing has been approved yet.",
+  rejected: "No rejected content atoms.",
+};
+
+function ContentReview() {
+  const { user } = useCurrentUser();
+  const [status, setStatus] = useState<ContentAtomStatus>("pending_review");
+  const [angle, setAngle] = useState<ContentAngle | "all">("all");
+  const [sort, setSort] = useState<SortOrder>("newest");
+  const { data, isLoading, error, refetch, isFetching } = useContentAtoms({
+    status,
+    angle: angle === "all" ? undefined : angle,
+    sort,
+  });
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-8 py-4 text-sm">
+          <span className="font-display text-lg">Editorial Desk</span>
+          <div className="flex items-center gap-4 text-muted-foreground">
+            {USE_MOCKS && <span className="rounded border border-border px-2 py-0.5 font-mono text-[11px]">mock data</span>}
+            <span>{user.email}</span>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-8 pb-24 pt-14">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Content intelligence</p>
+        <h1 className="mt-2 font-display text-5xl tracking-tight">Content Review</h1>
+        <p className="mt-3 max-w-xl text-muted-foreground">
+          Inspect AI-generated atoms from incoming newsletters. Approved items move on to the publishing pipeline.
+        </p>
+
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
+          <Tabs value={status} onValueChange={(v) => setStatus(v as ContentAtomStatus)}>
+            <TabsList>
+              <TabsTrigger value="pending_review">Pending Review</TabsTrigger>
+              <TabsTrigger value="approved">Approved</TabsTrigger>
+              <TabsTrigger value="rejected">Rejected</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <div className="flex gap-2">
+            <Select value={angle} onValueChange={(v) => setAngle(v as ContentAngle | "all")}>
+              <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All angles</SelectItem>
+                {CONTENT_ANGLES.map((a) => <SelectItem key={a} value={a}>{angleLabel(a)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={sort} onValueChange={(v) => setSort(v as SortOrder)}>
+              <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="oldest">Oldest First</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="mt-8 space-y-6">
+          {error && (
+            <div className="flex items-center justify-between gap-4 rounded-lg border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm">
+              <span className="flex items-center gap-2 text-destructive">
+                <AlertCircle className="size-4" /> Couldn't load content atoms. {(error as Error).message}
+              </span>
+              <Button size="sm" variant="outline" onClick={() => refetch()} disabled={isFetching}>Retry</Button>
+            </div>
+          )}
+
+          {isLoading &&
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-lg border border-border p-7">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="mt-5 h-7 w-3/4" />
+                <Skeleton className="mt-4 h-4 w-2/3" />
+                <Skeleton className="mt-4 h-14 w-full" />
+              </div>
+            ))}
+
+          {!isLoading && !error && data?.length === 0 && (
+            <div className="flex flex-col items-center rounded-lg border border-dashed border-border py-20 text-center">
+              <Inbox className="size-6 text-muted-foreground" />
+              <p className="mt-3 font-display text-xl">{EMPTY[status]}</p>
+              <p className="mt-1 text-sm text-muted-foreground">New atoms appear here as the pipeline ingests newsletters.</p>
+            </div>
+          )}
+
+          {data?.map((atom) => <AtomCard key={atom.id} atom={atom} />)}
+        </div>
+      </main>
     </div>
   );
 }
