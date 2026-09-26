@@ -28,7 +28,7 @@ export function EditAtomDialog({ atom, open, onOpenChange, onSave, saving }: Pro
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl font-normal">Edit content atom</DialogTitle>
+          <DialogTitle className="font-display text-2xl font-semibold tracking-tight">Edit content atom</DialogTitle>
           <DialogDescription>
             Saving creates version {atom.current_version + 1}. The atom stays in pending review.
           </DialogDescription>

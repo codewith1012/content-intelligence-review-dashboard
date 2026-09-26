@@ -82,14 +82,14 @@ function ContentReview() {
           </Tabs>
           <div className="flex gap-2 pb-3">
             <Select value={angle} onValueChange={(v) => setAngle(v as ContentAngle | "all")}>
-              <SelectTrigger size="sm" className="w-48 text-xs"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-8 w-48 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All angles</SelectItem>
                 {CONTENT_ANGLES.map((a) => <SelectItem key={a} value={a}>{angleLabel(a)}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={sort} onValueChange={(v) => setSort(v as SortOrder)}>
-              <SelectTrigger size="sm" className="w-36 text-xs"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="newest">Newest First</SelectItem>
                 <SelectItem value="oldest">Oldest First</SelectItem>
