@@ -49,7 +49,7 @@ export const mockContentAtomsService: ContentAtomsService = {
       id: `${id}_v${a.current_version}`,
       content_atom_id: id,
       version_number: a.current_version,
-      ...data,
+      title: data.title, hook: data.hook, brief: data.brief, angle: data.angle,
       edit_type: "human_edit",
       edited_by: "reviewer@company.com",
       created_at: a.updated_at,

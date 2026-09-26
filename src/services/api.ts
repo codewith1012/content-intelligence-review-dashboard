@@ -3,11 +3,11 @@
  * Base URL comes from VITE_API_BASE_URL. When it is not set, the app runs on mock data.
  */
 export const API_BASE_URL: string | undefined =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") || undefined;
+  (import.meta.env['VITE_API_BASE_URL'] as string | undefined)?.replace(/\/$/, "") || undefined;
 
 /** Force mock mode with VITE_USE_MOCKS=true even when a base URL exists. */
 export const USE_MOCKS =
-  import.meta.env.VITE_USE_MOCKS === "true" || !API_BASE_URL;
+  import.meta.env['VITE_USE_MOCKS'] === "true" || !API_BASE_URL;
 
 export class ApiError extends Error {
   constructor(
