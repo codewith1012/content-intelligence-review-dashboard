@@ -46,41 +46,50 @@ function ContentReview() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-8 py-4 text-sm">
-          <span className="font-display text-lg">Editorial Desk</span>
-          <div className="flex items-center gap-4 text-muted-foreground">
-            {USE_MOCKS && <span className="rounded border border-border px-2 py-0.5 font-mono text-[11px]">mock data</span>}
-            <span>{user.email}</span>
+      <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3.5 text-sm sm:px-8">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid size-7 shrink-0 place-items-center rounded-md bg-foreground font-display text-[11px] font-bold text-background">Q</span>
+            <span className="truncate font-display text-base font-semibold tracking-tight">W&amp;W <span className="text-muted-foreground">×</span> QIQ AI</span>
+          </div>
+          <div className="flex min-w-0 items-center gap-3 text-xs text-muted-foreground">
+            {USE_MOCKS && <span className="hidden rounded-md border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider sm:inline">mock data</span>}
+            <span className="truncate">{user.email}</span>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-8 pb-24 pt-14">
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Content intelligence</p>
-        <h1 className="mt-2 font-display text-5xl tracking-tight">Content Review</h1>
-        <p className="mt-3 max-w-xl text-muted-foreground">
-          Inspect AI-generated atoms from incoming newsletters. Approved items move on to the publishing pipeline.
+      <main className="mx-auto max-w-5xl px-5 pb-24 pt-12 sm:px-8">
+        <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-steel">
+          <span className="size-1.5 rounded-full bg-cyan" /> Content Intelligence
         </p>
+        <h1 className="mt-3 font-display text-[34px] font-semibold leading-tight tracking-tight">Content Review</h1>
+        <p className="mt-2 max-w-xl text-[15px] text-muted-foreground">Review, refine and approve generated intelligence.</p>
 
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
+        <div className="mt-10 flex flex-col gap-4 border-b border-border sm:flex-row sm:items-end sm:justify-between">
           <Tabs value={status} onValueChange={(v) => setStatus(v as ContentAtomStatus)}>
-            <TabsList>
-              <TabsTrigger value="pending_review">Pending Review</TabsTrigger>
-              <TabsTrigger value="approved">Approved</TabsTrigger>
-              <TabsTrigger value="rejected">Rejected</TabsTrigger>
+            <TabsList className="h-auto gap-6 rounded-none bg-transparent p-0">
+              {(["pending_review", "approved", "rejected"] as const).map((s) => (
+                <TabsTrigger
+                  key={s}
+                  value={s}
+                  className="relative rounded-none border-0 bg-transparent px-0 pb-3 pt-1 text-sm font-medium text-muted-foreground shadow-none transition-colors duration-200 ease-out hover:text-foreground after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-transparent after:transition-colors data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none data-[state=active]:after:bg-cyan"
+                >
+                  {s === "pending_review" ? "Pending Review" : s === "approved" ? "Approved" : "Rejected"}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </Tabs>
-          <div className="flex gap-2">
+          <div className="flex gap-2 pb-3">
             <Select value={angle} onValueChange={(v) => setAngle(v as ContentAngle | "all")}>
-              <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
+              <SelectTrigger size="sm" className="w-48 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All angles</SelectItem>
                 {CONTENT_ANGLES.map((a) => <SelectItem key={a} value={a}>{angleLabel(a)}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={sort} onValueChange={(v) => setSort(v as SortOrder)}>
-              <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+              <SelectTrigger size="sm" className="w-36 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="newest">Newest First</SelectItem>
                 <SelectItem value="oldest">Oldest First</SelectItem>
@@ -101,7 +110,7 @@ function ContentReview() {
 
           {isLoading &&
             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="rounded-lg border border-border p-7">
+              <div key={i} className="rounded-xl border border-border bg-card p-7 shadow-card">
                 <Skeleton className="h-4 w-40" />
                 <Skeleton className="mt-5 h-7 w-3/4" />
                 <Skeleton className="mt-4 h-4 w-2/3" />
@@ -110,9 +119,9 @@ function ContentReview() {
             ))}
 
           {!isLoading && !error && data?.length === 0 && (
-            <div className="flex flex-col items-center rounded-lg border border-dashed border-border py-20 text-center">
+            <div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/50 py-20 text-center">
               <Inbox className="size-6 text-muted-foreground" />
-              <p className="mt-3 font-display text-xl">{EMPTY[status]}</p>
+              <p className="mt-3 font-display text-lg font-semibold">{EMPTY[status]}</p>
               <p className="mt-1 text-sm text-muted-foreground">New atoms appear here as the pipeline ingests newsletters.</p>
             </div>
           )}
