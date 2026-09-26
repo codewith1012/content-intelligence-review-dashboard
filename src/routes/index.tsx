@@ -49,8 +49,10 @@ function ContentReview() {
       <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3.5 text-sm sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="grid size-7 shrink-0 place-items-center rounded-md bg-foreground font-display text-[11px] font-bold text-background">Q</span>
-            <span className="truncate font-display text-base font-semibold tracking-tight">W&amp;W <span className="text-muted-foreground">×</span> QIQ AI</span>
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-foreground font-display text-[11px] font-extrabold text-background">Q</span>
+            <span className="truncate font-display text-base font-extrabold uppercase tracking-tight">
+              W<span className="font-editorial text-lg italic">&amp;</span>W <span className="text-muted-foreground">×</span> QIQ AI
+            </span>
           </div>
           <div className="flex min-w-0 items-center gap-3 text-xs text-muted-foreground">
             {USE_MOCKS && <span className="hidden rounded-md border border-border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider sm:inline">mock data</span>}
